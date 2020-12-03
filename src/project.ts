@@ -1,10 +1,9 @@
-import { Processor } from ".";
+import { Processor } from "./processors";
 import { VersionBumper } from "./bumpers";
 import { ProjectConfiguration } from "./configuration";
 import { GitCommit } from "./git";
 import { Versionner } from "./versionners";
 import * as path from "path";
-import { JsonVersionner } from "./versionners/json";
 import { Ghydro } from "./index";
 
 export type CommitFilter = (commit: GitCommit) => boolean;
@@ -109,7 +108,11 @@ export class Project {
     this.configuration.versionners.forEach(versionner => {
       this.versionners.push(Ghydro.getComponent(this, "versionner", versionner));
     });
-    this.versionners.push(new JsonVersionner(this, { path: "package.json" }));
+    this.processors = [];
+    this.configuration.processors ??= [];
+    this.configuration.processors.forEach(processor => {
+      this.processors.push(Ghydro.getComponent(this, "processor", processor));
+    });
     this.versionBumper = Ghydro.getComponent(
       this,
       "bumper",

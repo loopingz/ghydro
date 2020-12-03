@@ -64,3 +64,4 @@ test
 prepare-release
 release
 post-release
+deploy

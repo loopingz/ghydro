@@ -7,34 +7,11 @@ import { JsonVersionner } from "./versionners/json";
 import { YamlVersionner } from "./versionners/yaml";
 import { Project } from "./project";
 import { NpmVersionner } from "./versionners/npm";
+import { TextVersionner } from "./versionners/text";
+import { ChangeLogProcessor } from "./processors/changelog";
 
 export interface ComponentOptions {
   type?: string;
-}
-
-export interface ProcessorResult {
-  /**
-   * Result of the processor
-   */
-  result: "success" | "neutral" | "error";
-  /**
-   * Markdown report
-   */
-  report: string;
-}
-
-export class Processor {
-  getSteps(): string[] {
-    return [];
-  }
-
-  hasStep(step: string): boolean {
-    return this.getSteps().includes(step);
-  }
-
-  execute(step: string): ProcessorResult {
-    return undefined;
-  }
 }
 
 export type ComponentType = "versionner" | "bumper" | "processor";
@@ -177,14 +154,17 @@ export class Ghydro {
       await this.versions();
       return;
     }
+    let words = step.split("-");
+    let methodName = words.shift() + words.map(w => w.substr(0,1).toUpperCase() + w.substr(1));
     let projects = argv.force ? this.getProjects() : this.getUpdatedProjects();
-    projects.forEach(project => {
-      project.processors
-        .filter(processor => processor.hasStep(step))
-        .forEach(processor => {
-          processor.execute(step);
-        });
-    });
+    for (let p in projects) {
+      const project = projects[p];
+      await Promise.all(project.processors
+        .filter(processor => processor.hasStep(methodName))
+        .map(processor => {
+          return processor.execute(methodName);
+        }));
+    }
   }
 
   static register(name: string, type: ComponentType, component: any) {
@@ -207,4 +187,6 @@ export class Ghydro {
 Ghydro.register("json", "versionner", JsonVersionner);
 Ghydro.register("yaml", "versionner", YamlVersionner);
 Ghydro.register("npm", "versionner", NpmVersionner);
+Ghydro.register("text", "versionner", TextVersionner);
 Ghydro.register("conventional", "bumper", ConventionalVersionBumper);
+Ghydro.register("changelog", "processor", ChangeLogProcessor);

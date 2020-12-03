@@ -9,14 +9,13 @@ export interface JsonVersionnerOptions extends ComponentOptions {
   jsonpath?: string;
 }
 
-export class JsonVersionner implements Versionner {
+export class JsonVersionner extends Versionner {
   project: Project;
   options: JsonVersionnerOptions;
   loaded: any;
 
   constructor(project: Project, options: JsonVersionnerOptions) {
-    this.project = project;
-    this.options = options;
+    super(project, options);
     this.options.jsonpath ??= "$.version";
   }
 

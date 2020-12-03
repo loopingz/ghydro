@@ -1,4 +1,5 @@
 import { Versionner } from "./versionners";
+import { Processor } from "./processors";
 import { GitCommit } from "./git";
 /*
 projects: {
@@ -16,6 +17,9 @@ projects: {
 */
 
 export interface ProjectConfiguration {
+  /**
+   * Bump version
+   */
   versionBumper?: { type: string };
   /**
    * Project name
@@ -50,6 +54,12 @@ export interface ProjectConfiguration {
    * @default []
    */
   versionners?: (Versionner | string)[];
+  /**
+   * Define processors
+   *
+   * @default []
+   */
+  processors?: (Processor | string)[];
   /**
    * Commit filter
    *

@@ -1,6 +1,16 @@
-export interface Versionner {
-  readVersion: () => string | Promise<string>;
-  writeVersion: (version: string) => void | Promise<void>;
-  lockDependencies: () => void | Promise<void>;
-  unlockDependencies: () => void | Promise<void>;
+import { Project } from "../project";
+
+export abstract class Versionner {
+  project: Project;
+  options: any;
+
+  constructor(project: Project, options: any) {
+    this.project = project;
+    this.options = options;
+  }
+
+  abstract readVersion(): string | Promise<string>;
+  abstract writeVersion(version: string): void | Promise<void>;
+  abstract lockDependencies(): void | Promise<void>;
+  abstract unlockDependencies(): void | Promise<void>;
 }
